@@ -6,7 +6,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "vuepress build",
+    "build": "THEME=odyssey vuepress build",
     "start": "yarn build && vuepress dev",
     "test": "echo \"Tests have not been implemented for ${npm_package_name}\" && exit 0"
   },
