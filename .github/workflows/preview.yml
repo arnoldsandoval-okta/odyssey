@@ -37,23 +37,23 @@ jobs:
       #     GITHUB_CONTEXT: ${{ toJson(github) }}
       #   run: echo "$GITHUB_CONTEXT"
 
-      - name: Install dependencies
+      - name: install dependencies
         run: yarn
 
-      - name: Build docs
+      - name: build docs
         run: yarn workspace @okta/design-docs build
 
-      - name: Deploy preview
+      - name: 🚀deploy preview
         run: | 
           aws s3 sync ./packages/docs/dist/ s3://ods.dev/$SHA7 --delete
 
-      - name: Notify (GitHub)
+      - name: notify GitHub
         run: sh ./scripts/notify-gh.sh
         env:
           INCOMING_WEBHOOK_URL: ${{ github.event.pull_request.comments_url }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Notify (Slack)
+      - name: notify Slack
         run: sh ./scripts/notify-slack.sh
         env:
           INCOMING_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

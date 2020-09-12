@@ -29,7 +29,7 @@ curl \
             "type": "button",
             "text": {
               "type": "plain_text",
-              "text": "Pull Request #661",
+              "text": "Pull Request #'"$PULL_REQUEST_ID"'",
               "emoji": true
             },
             "url": "https://github.com/okta/odyssey/pull/'"$PULL_REQUEST_ID"'"
