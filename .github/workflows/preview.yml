@@ -1,10 +1,10 @@
 name: Preview
 on:
   pull_request:
-    branches: 
+    branches:
       - master
       - develop
-      - 'release/**'
+      - "release/**"
 jobs:
   deployment:
     runs-on: ubuntu-latest
@@ -23,7 +23,7 @@ jobs:
 
       - name: set $SHA7
         run: echo ::set-env name=SHA7::$(git rev-parse --short ${{ github.event.pull_request.head.sha || github.sha }})
-      
+
       - name: set $PREVIEW_URL
         run: echo ::set-env name=PREVIEW_URL::"https://"$SHA7".ods.dev"
 
@@ -32,10 +32,10 @@ jobs:
           MSG=$(git log --format=%B -n 1 ${{ github.event.after }})
           echo "::set-env name=COMMIT_MSG::${MSG}"
 
-      # - name: Dump GitHub context
-      #   env:
-      #     GITHUB_CONTEXT: ${{ toJson(github) }}
-      #   run: echo "$GITHUB_CONTEXT"
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
 
       - name: install dependencies
         run: yarn
@@ -43,15 +43,32 @@ jobs:
       - name: build docs
         run: yarn workspace @okta/design-docs build
 
-      - name: 🚀deploy preview
-        run: | 
+      - name: start deployment
+        uses: bobheadxi/deployments@master
+        id: deployment
+        with:
+          step: start
+          token: ${{ secrets.GITHUB_TOKEN }}
+          env: release
+
+      - name: 🚀 deploy
+        run: |
           aws s3 sync ./packages/docs/dist/ s3://ods.dev/$SHA7 --delete
 
-      - name: notify GitHub
-        run: sh ./scripts/notify-gh.sh
-        env:
-          INCOMING_WEBHOOK_URL: ${{ github.event.pull_request.comments_url }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: update deployment status
+        uses: bobheadxi/deployments@master
+        if: always()
+        with:
+          step: finish
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+
+      # - name: notify GitHub
+      #   run: sh ./scripts/notify-gh.sh
+      #   env:
+      #     INCOMING_WEBHOOK_URL: ${{ github.event.pull_request.comments_url }}
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: notify Slack
         run: sh ./scripts/notify-slack.sh
@@ -60,4 +77,3 @@ jobs:
           AUTHOR_NAME: ${{github.actor}}
           BRANCH_NAME: ${{github.head_ref}}
           PULL_REQUEST_ID: ${{github.event.pull_request.number}}
-           
