@@ -4,6 +4,7 @@ curl \
   -X POST \
   -H "Content-Type: application/json" \
   --data '
+
   {
     "blocks": [
       {
@@ -11,7 +12,7 @@ curl \
         "elements": [
           {
             "type": "mrkdwn",
-            "text": ":white_check_mark: *Preview Deployed*"
+            "text": ":rocket: *Preview Deployed*"
           }
         ]
       },
@@ -19,32 +20,15 @@ curl \
         "type": "section",
         "text": {
           "type": "mrkdwn",
-          "text": "> '"$COMMIT_MSG"'"
+            "text": "> '"$COMMIT_MSG"'"
         }
       },
       {
-        "type": "actions",
-        "elements": [
-          {
-            "type": "button",
-            "text": {
-              "type": "plain_text",
-              "text": "Pull Request #'"$PULL_REQUEST_ID"'",
-              "emoji": true
-            },
-            "url": "https://github.com/okta/odyssey/pull/'"$PULL_REQUEST_ID"'"
-          },
-          {
-            "type": "button",
-            "style": "primary",
-            "text": {
-              "type": "plain_text",
-              "text": "Visit Preview",
-              "emoji": true
-            },
-            "url": "'"$PREVIEW_URL"'"
-          }
-        ]
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": "<https://github.com/okta/odyssey/pull/'"$PULL_REQUEST_ID"'|Pull Request '"$PULL_REQUEST_ID"'> ∙ *<'"$PREVIEW_URL"'|View Deployment>*"
+        }
       },
       {
         "type": "context",
